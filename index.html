@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Bourse & ETFs (PEA)</title>
+    <!-- Tailwind CSS pour le design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React et ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel pour interpréter le JSX dans le navigateur -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        function App() {
+            const [investment, setInvestment] = React.useState(10000);
+            const [allocations, setAllocations] = React.useState({
+                CW8: 50,
+                IWDA: 30,
+                CLE: 20
+            });
+
+            const etfs = [
+                {
+                    isin: "FR001400U5Q4",
+                    name: "Amundi MSCI World UCITS ETF (CW8)",
+                    ter: "0.12%",
+                    pea: "Oui (PEA)",
+                    replication: "Synthétique",
+                    return1y: "+19.4%",
+                    color: "blue"
+                },
+                {
+                    isin: "IE0002XZSHO1",
+                    name: "iShares Core MSCI World UCITS ETF (IWDA)",
+                    ter: "0.20%",
+                    pea: "Non (Cto)",
+                    replication: "Physique",
+                    return1y: "+19.2%",
+                    color: "emerald"
+                },
+                {
+                    isin: "FR0013380607",
+                    name: "Amundi PEA Eau UCITS ETF (CLE)",
+                    ter: "0.60%",
+                    pea: "Oui (PEA)",
+                    replication: "Synthétique",
+                    return1y: "+12.8%",
+                    color: "indigo"
+                }
+            ];
+
+            const handleAllocChange = (key, val) => {
+                setAllocations(prev => ({ ...prev, [key]: Number(val) }));
+            };
+
+            const totalAlloc = Object.values(allocations).reduce((a, b) => a + b, 0);
+
+            return (
+                <div className="max-w-6xl mx-auto px-4 py-8">
+                    <header className="mb-8 border-b border-slate-800 pb-4 flex justify-between items-center">
+                        <div>
+                            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                                Dashboard Portefeuille & ETFs
+                            </h1>
+                            <p className="text-sm text-slate-400 mt-1">Suivi en direct de vos placements (CW8, IWDA, CLE)</p>
+                        </div>
+                        <span className="px-3 py-1 bg-blue-500/10 text-blue-400 text-xs font-semibold rounded-full border border-blue-500/20">
+                            Actif & Synchronisé
+                        </span>
+                    </header>
+
+                    {/* Grille des ETFs */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        {etfs.map((etf) => (
+                            <div key={etf.isin} className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg relative overflow-hidden">
+                                <div className="flex justify-between items-start mb-3">
+                                    <span className="text-xs font-mono bg-slate-800 px-2 py-1 rounded text-slate-300">{etf.isin}</span>
+                                    <span className="text-emerald-400 font-semibold text-sm">{etf.return1y} (1 an)</span>
+                                </div>
+                                <h3 className="font-bold text-lg mb-2 text-white">{etf.name}</h3>
+                                <div className="space-y-1 text-sm text-slate-400 mb-4">
+                                    <div className="flex justify-between"><span>Frais (TER) :</span> <strong className="text-slate-200">{etf.ter}</strong></div>
+                                    <div className="flex justify-between"><span>Éligibilité :</span> <strong className="text-slate-200">{etf.pea}</strong></div>
+                                    <div className="flex justify-between"><span>Réplication :</span> <strong className="text-slate-200">{etf.replication}</strong></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Simulateur d'allocation */}
+                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg">
+                        <h2 className="text-lg font-bold mb-4 text-white">Simulateur d'Allocation d'Actifs</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                            <div>
+                                <label className="block text-sm text-slate-400 mb-2">Montant total à investir (€)</label>
+                                <input 
+                                    type="number" 
+                                    value={investment} 
+                                    onChange={(e) => setInvestment(Number(e.target.value))}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500"
+                                />
+                                <div className="mt-4 space-y-3">
+                                    <div>
+                                        <div className="flex justify-between text-sm mb-1"><span>CW8 ({allocations.CW8}%)</span> <span>{(investment * allocations.CW8 / 100).toLocaleString()} €</span></div>
+                                        <input type="range" min="0" max="100" value={allocations.CW8} onChange={(e) => handleAllocChange('CW8', e.target.value)} className="w-full accent-blue-500"/>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between text-sm mb-1"><span>IWDA ({allocations.IWDA}%)</span> <span>{(investment * allocations.IWDA / 100).toLocaleString()} €</span></div>
+                                        <input type="range" min="0" max="100" value={allocations.IWDA} onChange={(e) => handleAllocChange('IWDA', e.target.value)} className="w-full accent-emerald-500"/>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between text-sm mb-1"><span>CLE ({allocations.CLE}%)</span> <span>{(investment * allocations.CLE / 100).toLocaleString()} €</span></div>
+                                        <input type="range" min="0" max="100" value={allocations.CLE} onChange={(e) => handleAllocChange('CLE', e.target.value)} className="w-full accent-indigo-500"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-slate-950 border border-slate-800 p-6 rounded-xl flex flex-col justify-center items-center text-center">
+                                <p className="text-sm text-slate-400 mb-1">Total Réparti</p>
+                                <p className={`text-3xl font-bold ${totalAlloc === 100 ? 'text-emerald-400' : 'text-amber-400'}`}>{totalAlloc}%</p>
+                                {totalAlloc !== 100 && (
+                                    <p className="text-xs text-amber-400 mt-2">Attention : Le total doit être égal à 100%.</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
